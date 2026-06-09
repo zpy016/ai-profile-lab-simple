@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+:root {
+  --color-primary: #9B4D4D;
+  --color-primary-hover: #8A4343;
+  --color-primary-active: #7A3A3A;
+  --color-primary-surface: #F5EAEA;
+  --color-brand-dark: #4A6670;
+  --color-accent: #C49A6C;
+  --color-accent-bg: rgba(196, 154, 108, 0.15);
+  --color-accent-surface: #FDF6EC;
+  --color-accent-warm: #D4C5A0;
+  --color-accent-green: #7A8B6F;
+  --color-text-primary: #2C3E50;
+  --color-text-secondary: #546E7A;
+  --color-text-placeholder: #7F8C8D;
+  --color-text-disabled: #A3B1B2;
+  --color-border: #E8E4DE;
+  --color-border-light: #F0ECE6;
+  --color-bg: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-elevated: #F7F5F0;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'SimSun', serif;
+  --font-sans: 'PingFang SC', -apple-system, 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  --shadow-sm: 0 1px 3px rgba(44, 62, 80, 0.06);
+  --shadow-md: 0 4px 12px rgba(44, 62, 80, 0.08);
+  --shadow-lg: 0 8px 24px rgba(44, 62, 80, 0.12);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white border-none rounded-btn px-6 py-2.5 text-sm font-semibold tracking-wide cursor-pointer transition-colors duration-200;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
+  .btn-primary:active {
+    background-color: var(--color-primary-active);
+    transform: scale(0.98);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-primary border border-primary rounded-btn px-6 py-2.5 text-sm font-medium cursor-pointer transition-colors duration-200;
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-primary-surface);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-brand-dark border-none rounded-btn px-4 py-2 text-sm font-medium cursor-pointer;
+  }
+  .btn-ghost:hover {
+    background-color: var(--color-elevated);
+  }
+
+  .btn-danger {
+    @apply bg-error text-white border-none rounded-btn px-6 py-2.5 text-sm font-semibold cursor-pointer;
+  }
+
+  .btn-delta {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium text-accent bg-transparent border border-accent rounded-tag cursor-pointer transition-all duration-150;
+  }
+  .btn-delta:hover {
+    background-color: var(--color-accent-bg);
+    color: var(--color-primary);
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-card p-4 shadow-sm transition-shadow duration-200;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .input {
+    @apply border border-border rounded-btn px-3.5 py-2.5 text-sm text-text-primary bg-surface transition-colors duration-200;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-brand-dark);
+    box-shadow: 0 0 0 2px rgba(74, 102, 112, 0.12);
+  }
+  .input::placeholder {
+    color: var(--color-text-placeholder);
+  }
+}
+
+@keyframes placeholderPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes parsingGlow {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes skeletonShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

@@ -12,7 +12,16 @@ interface TuningPanelProps {
   setState: React.Dispatch<React.SetStateAction<AppState>>;
 }
 
+const promptTabs = [
+  { key: 'extract', label: '标签提取', configKey: 'promptExtractTags', rows: 8 },
+  { key: 'intro', label: '简介生成', configKey: 'promptGenerateIntro', rows: 5 },
+  { key: 'interview', label: '采访引导', configKey: 'promptInterviewGuide', rows: 10 },
+  { key: 'image', label: '图片生成', configKey: 'promptGenerateImage', rows: 8 },
+] as const;
+
 export default function TuningPanel({ state, setState }: TuningPanelProps) {
+  const [activePromptTab, setActivePromptTab] = useState<(typeof promptTabs)[number]['key']>('extract');
+
   const updateConfig = (key: string, value: string | number) => {
     setState((prev) => ({
       ...prev,
@@ -30,119 +39,73 @@ export default function TuningPanel({ state, setState }: TuningPanelProps) {
     alert('搜索验证功能待接入——需要将 hidden 文本块作为 context 调用 AI。');
   };
 
-  const [showHelp, setShowHelp] = useState(false);
+  const activeTabConfig = promptTabs.find((t) => t.key === activePromptTab)!;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Help Section */}
-      <div className="bg-surface border border-border rounded-card p-4">
-        <button
-          onClick={() => setShowHelp(!showHelp)}
-          className="flex items-center justify-between w-full text-left"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-lg">💡</span>
-            <span className="font-serif text-sm font-semibold text-brand-dark">这个系统是怎么工作的？</span>
-          </div>
-          <span className="text-text-secondary text-xs">{showHelp ? '收起' : '展开'}</span>
-        </button>
-
-        {showHelp && (
-          <div className="mt-3 pt-3 border-t border-border-light space-y-3 text-xs text-text-secondary leading-relaxed">
-            <div className="space-y-2">
-              <p className="font-medium text-text-primary">核心流程（所有工作流通用）：</p>
-              <ol className="list-decimal list-inside space-y-1 pl-1">
-                <li>你在<strong>右侧 Prompt 编辑器</strong>里写的文字 = 给 AI 的「系统指令」</li>
-                <li>用户在<strong>左侧输入框</strong>里写的文字 = 给 AI 的「用户输入」</li>
-                <li>两者拼接后，通过 <code className="bg-elevated px-1 rounded text-[10px]">/api/chat</code> 发给火山方舟大模型</li>
-                <li>AI 返回结果 → 前端解析展示在左侧</li>
-              </ol>
-            </div>
-
-            <div className="bg-elevated rounded-btn p-3 space-y-1.5">
-              <p className="font-medium text-text-primary">4 个 Prompt 分别控制什么：</p>
-              <div className="grid grid-cols-[80px_1fr] gap-x-2 gap-y-1">
-                <span className="text-accent font-medium">标签提取</span>
-                <span>控制 AI 怎么把一段话拆成文本块 + 提取哪些标签</span>
-                <span className="text-accent font-medium">简介生成</span>
-                <span>控制 AI 怎么写个人简介（语气、长度、风格）</span>
-                <span className="text-accent font-medium">采访引导</span>
-                <span>控制 AI 采访用户时问什么问题、怎么追问</span>
-                <span className="text-accent font-medium">图片生成</span>
-                <span>控制 AI 生成概念图的风格和约束</span>
-              </div>
-            </div>
-
-            <div className="bg-elevated rounded-btn p-3 space-y-1.5">
-              <p className="font-medium text-text-primary">Hidden 文本块是什么？</p>
-              <p>工作流2（AI 采访）独有的机制。用户在对话中透露的、不想直接展示在主页上的信息（如真实诉求、敏感背景）。这些信息：</p>
-              <ul className="list-disc list-inside space-y-0.5 pl-1">
-                <li>不在「个人主页」预览中显示</li>
-                <li>但会列在右侧面板底部</li>
-                <li>可以被 AI 在「模拟其他同学提问」时引用</li>
-              </ul>
-            </div>
-
-            <p className="text-text-placeholder">💡 修改右侧任何 Prompt 后，下一次用户点击「生成」或「发送」就会立即生效，不需要刷新页面。</p>
-          </div>
-        )}
-      </div>
-
+    <div className="p-5 space-y-5">
+      {/* Title */}
       <div>
-        <h2 className="font-serif text-lg font-semibold text-brand-dark mb-1">调优面板</h2>
+        <h2 className="font-serif text-lg font-semibold text-brand-dark mb-0.5">调优面板</h2>
         <p className="text-xs text-text-secondary">调整 Prompt、模型和参数，实时观察左侧效果</p>
       </div>
 
-      <div className="space-y-5">
+      {/* Model & Temperature */}
+      <div className="space-y-4">
         <ModelSelector
           value={state.config.model}
           onChange={(v) => updateConfig('model', v)}
         />
-
         <TemperatureSlider
           value={state.config.temperature}
           onChange={(v) => updateConfig('temperature', v)}
         />
+      </div>
 
-        <PromptEditor
-          label="标签提取 & 内容分块 Prompt"
-          value={state.config.promptExtractTags}
-          onChange={(v) => updateConfig('promptExtractTags', v)}
-          rows={8}
-        />
-
-        <PromptEditor
-          label="简介生成 Prompt"
-          value={state.config.promptGenerateIntro}
-          onChange={(v) => updateConfig('promptGenerateIntro', v)}
-          rows={5}
-        />
-
-        <PromptEditor
-          label="采访引导 Prompt"
-          value={state.config.promptInterviewGuide}
-          onChange={(v) => updateConfig('promptInterviewGuide', v)}
-          rows={10}
-        />
-
-        <div className="border-t border-border pt-5">
-          <h3 className="text-sm font-semibold text-brand-dark mb-3">图片生成配置</h3>
-          <p className="text-xs text-text-secondary mb-3">
-            使用火山方舟 Doubao-Seedream-5.0-lite 模型，与文字模型共用同一个 API Key。
-          </p>
-          <PromptEditor
-            label="图片生成 Prompt"
-            value={state.config.promptGenerateImage}
-            onChange={(v) => updateConfig('promptGenerateImage', v)}
-            rows={8}
-          />
+      {/* Prompt Tabs */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
+            Prompt 编辑器
+          </label>
         </div>
+
+        {/* Tab Buttons */}
+        <div className="flex gap-1 bg-surface rounded-btn p-1">
+          {promptTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActivePromptTab(tab.key)}
+              className={`flex-1 text-center py-1.5 px-1 rounded-[6px] text-[11px] font-medium transition-all duration-200 ${
+                activePromptTab === tab.key
+                  ? 'bg-elevated text-primary shadow-sm'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Active Prompt Editor */}
+        <PromptEditor
+          label={`${activeTabConfig.label} Prompt`}
+          value={state.config[activeTabConfig.configKey]}
+          onChange={(v) => updateConfig(activeTabConfig.configKey, v)}
+          rows={activeTabConfig.rows}
+        />
+      </div>
+
+      {/* Image Model Note */}
+      <div className="bg-surface border border-border-light rounded-card px-3 py-2">
+        <p className="text-[11px] text-text-secondary">
+          图片使用火山方舟 Doubao-Seedream-5.0-lite 模型，与文字模型共用同一个 API Key。
+        </p>
       </div>
 
       {/* Hidden Blocks Preview */}
       {hiddenBlocks.length > 0 && (
-        <div className="border-t border-border pt-5">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">
+        <div className="border-t border-border pt-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-2">
             Hidden 文本块（仅 AI 搜索可见）
           </h3>
           <div className="space-y-2">

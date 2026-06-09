@@ -12,7 +12,7 @@ server {
     server_name _;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3035;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -25,7 +25,7 @@ server {
 
     # 静态资源缓存
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3035;
         expires 1M;
         add_header Cache-Control "public, immutable";
     }
@@ -52,5 +52,5 @@ echo "  端口：8035"
 echo "  来源：0.0.0.0/0"
 
 echo "=== 完成 ==="
-echo "Nginx 已配置为监听 8035 端口，反向代理到 localhost:3000"
+echo "Nginx 已配置为监听 8035 端口，反向代理到 localhost:3035"
 echo "访问地址：http://服务器IP:8035"

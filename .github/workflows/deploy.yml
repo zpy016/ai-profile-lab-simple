@@ -62,9 +62,9 @@ jobs:
             npm ci --production
             # 用 PM2 启动/重启应用
             if pm2 list | grep -q "ai-profile"; then
-              pm2 restart ai-profile
+              PORT=3035 pm2 restart ai-profile
             else
-              pm2 start npm --name "ai-profile" -- start
+              PORT=3035 pm2 start npm --name "ai-profile" -- start
             fi
             pm2 save
             # 重启 Nginx

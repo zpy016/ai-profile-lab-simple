@@ -60,8 +60,8 @@ jobs:
             echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" > .env.local
             # 安装生产依赖
             npm ci --production
-            # 用 PM2 启动/重启应用
-            if pm2 list | grep -q "ai-profile"; then
+            # 用 PM2 启动/重启应用（用 pm2 describe 精确匹配，避免 ai-profile-lab 等类似名称误判）
+            if pm2 describe ai-profile > /dev/null 2>&1; then
               PORT=3035 pm2 restart ai-profile
             else
               PORT=3035 pm2 start npm --name "ai-profile" -- start

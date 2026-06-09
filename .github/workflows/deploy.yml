@@ -31,6 +31,7 @@ jobs:
       # 5. 打包构建产物
       - name: 📦 Package artifacts
         run: |
+          mkdir -p public
           tar -czf deploy.tar.gz .next package.json package-lock.json public next.config.js
 
       # 6. 上传到服务器

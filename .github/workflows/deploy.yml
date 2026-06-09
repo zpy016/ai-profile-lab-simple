@@ -67,5 +67,7 @@ jobs:
               PORT=3035 pm2 start npm --name "ai-profile" -- start
             fi
             pm2 save
+            # 确保 Nginx 指向正确的端口（自动修复旧配置）
+            sed -i 's/localhost:3000/localhost:3035/g' /etc/nginx/sites-available/ai-profile
             # 重启 Nginx
             nginx -t && systemctl restart nginx

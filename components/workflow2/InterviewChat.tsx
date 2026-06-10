@@ -45,7 +45,6 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
           userPrompt: '开始采访',
           model: state.config.model,
           temperature: state.config.temperature,
-          responseFormat: { type: 'json_object' },
         }),
       });
 
@@ -93,7 +92,6 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
           userPrompt: userMsg.content,
           model: state.config.model,
           temperature: state.config.temperature,
-          responseFormat: { type: 'json_object' },
         }),
       });
 
@@ -154,7 +152,6 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
           userPrompt: `请根据以下采访对话，生成完整的个人主页内容：\n${historyText}`,
           model: state.config.model,
           temperature: state.config.temperature,
-          responseFormat: { type: 'json_object' },
         }),
       });
 

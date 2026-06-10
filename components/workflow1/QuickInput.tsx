@@ -42,7 +42,6 @@ export default function QuickInput({ state, setState }: QuickInputProps) {
           userPrompt: state.quickInput,
           model: state.config.model,
           temperature: state.config.temperature,
-          responseFormat: { type: 'json_object' },
         }),
       });
 

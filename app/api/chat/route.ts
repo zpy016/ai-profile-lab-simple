@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       model,
       messages,
       temperature,
-      response_format: responseFormat,
+      ...(responseFormat ? { response_format: responseFormat } : {}),
     }, {
       timeout: 30000,
     });
@@ -74,8 +74,9 @@ export async function POST(req: NextRequest) {
 
     // Content moderation or other errors
     if (err.status === 400 || err.status === 403) {
+      const rawMsg = err.error?.message || err.message || '';
       return NextResponse.json(
-        { error: '当前输入无法处理，请调整内容后重试。' },
+        { error: `请求参数错误：${rawMsg}` },
         { status: 400 }
       );
     }

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { listPrompts } from '@/lib/prompt-storage';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const prompts = listPrompts();

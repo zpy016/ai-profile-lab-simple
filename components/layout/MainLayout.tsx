@@ -13,6 +13,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ state, setState, children }: MainLayoutProps) {
   const [showHelp, setShowHelp] = useState(false);
+  const [helpTab, setHelpTab] = useState<'system' | 'debug'>('system');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,26 +25,32 @@ export default function MainLayout({ state, setState, children }: MainLayoutProp
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowHelp(!showHelp)}
+            onClick={() => {
+              setHelpTab('system');
+              setShowHelp(true);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-200 ${
-              showHelp
+              showHelp && helpTab === 'system'
                 ? 'bg-accent text-white shadow-sm'
                 : 'bg-elevated text-text-secondary hover:text-text-primary hover:bg-surface border border-border-light'
             }`}
           >
             <span>💡</span>
-            <span>{showHelp ? '关闭说明' : '系统说明'}</span>
+            <span>系统说明</span>
           </button>
           <button
-            onClick={() => setShowHelp(!showHelp)}
+            onClick={() => {
+              setHelpTab('debug');
+              setShowHelp(true);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-200 ${
-              showHelp
+              showHelp && helpTab === 'debug'
                 ? 'bg-accent text-white shadow-sm'
                 : 'bg-elevated text-text-secondary hover:text-text-primary hover:bg-surface border border-border-light'
             }`}
           >
             <span>🐛</span>
-            <span>{showHelp ? '关闭说明' : '调试说明'}</span>
+            <span>调试说明</span>
           </button>
         </div>
       </header>
@@ -73,7 +80,7 @@ export default function MainLayout({ state, setState, children }: MainLayoutProp
           {/* Help Panel */}
           {showHelp && (
             <div className="w-[260px] shrink-0 border-l border-border-light overflow-y-auto bg-surface animate-in slide-in-from-right duration-300">
-              <HelpPanel onClose={() => setShowHelp(false)} />
+              <HelpPanel onClose={() => setShowHelp(false)} initialTab={helpTab} />
             </div>
           )}
         </section>

@@ -6,6 +6,7 @@ import PromptEditor from './PromptEditor';
 import ModelSelector from './ModelSelector';
 import TemperatureSlider from './TemperatureSlider';
 import Button from '@/components/shared/Button';
+import PromptManager from './PromptManager';
 
 interface TuningPanelProps {
   state: AppState;
@@ -120,6 +121,17 @@ export default function TuningPanel({ state, setState }: TuningPanelProps) {
           </Button>
         </div>
       )}
+
+      {/* Prompt Manager */}
+      <PromptManager
+        config={state.config}
+        onLoad={(newConfig) =>
+          setState((prev) => ({
+            ...prev,
+            config: { ...prev.config, ...newConfig },
+          }))
+        }
+      />
     </div>
   );
 }

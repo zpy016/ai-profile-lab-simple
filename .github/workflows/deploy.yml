@@ -58,6 +58,8 @@ jobs:
             rm -rf .next
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
+            # 确保提示词数据目录存在
+            mkdir -p data/prompts
             # 写入环境变量（从 GitHub Secrets 注入）
             echo "ARK_API_KEY=${{ secrets.ARK_API_KEY }}" > .env.local
             # 安装生产依赖

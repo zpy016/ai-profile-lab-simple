@@ -50,6 +50,16 @@ export interface AppState {
   };
 }
 
+export interface PromptDocument {
+  id: string;
+  name: string;
+  author: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  config: AppConfig;
+}
+
 export const DEFAULT_CONFIG: AppConfig = {
   model: 'ep-20260609201117-gcqzt',
   temperature: 0.7,

@@ -76,6 +76,72 @@ export default function HelpPanel({ onClose }: HelpPanelProps) {
           </ul>
         </div>
 
+        {/* Prompt Manager */}
+        <div className="bg-elevated rounded-card p-3 space-y-2">
+          <p className="font-medium text-text-primary text-sm">🎛️ 提示词管理（右侧面板底部）</p>
+          <div className="space-y-1.5">
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">💾</span>
+              <span><strong>保存到云端</strong>：填写名称/作者/描述，将当前 4 个 Prompt + 模型参数保存到服务器，所有人可见</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">📂</span>
+              <span><strong>从云端加载</strong>：查看所有人保存的提示词配置，点击即可加载到自己的右侧面板</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">⬇️</span>
+              <span><strong>下载到本地</strong>：导出为 JSON 文件，通过微信/邮件发给他人</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">⬆️</span>
+              <span><strong>从本地上传</strong>：接收他人发来的 JSON 文件并加载</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Test Logs */}
+        <div className="bg-elevated rounded-card p-3 space-y-2">
+          <p className="font-medium text-text-primary text-sm">📊 测试日志（右侧面板底部）</p>
+          <p>每次点击「生成主页」或 AI 采访的「发送」时，系统自动记录一条日志，包含：</p>
+          <ul className="list-disc list-inside space-y-0.5 pl-0.5">
+            <li>时间、输入、<strong>提示词快照</strong>、AI 输出</li>
+            <li>Token 用量（prompt / completion / total）</li>
+            <li>请求耗时、成功与否</li>
+          </ul>
+          <div className="space-y-1.5 pt-1">
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">💾</span>
+              <span><strong>保存到云端</strong>：将本地日志批量保存到服务器</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">📂</span>
+              <span><strong>从云端加载</strong>：加载他人保存的日志集</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">📥</span>
+              <span><strong>下载 CSV</strong>：导出表格，便于 Excel 分析</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">📄</span>
+              <span><strong>下载 Markdown</strong>：导出 Markdown，便于丢给 AI 分析调试</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-accent font-medium shrink-0">🗑️</span>
+              <span><strong>清空日志</strong>：删除本地记录（不影响已保存到云端的）</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Debugging Tips */}
+        <div className="bg-elevated rounded-card p-3 space-y-1.5">
+          <p className="font-medium text-text-primary text-sm">🐛 调试技巧</p>
+          <ul className="list-disc list-inside space-y-0.5 pl-0.5">
+            <li><strong>对比不同版本</strong>：修改 Prompt → 测试 → 展开日志查看当时的配置快照</li>
+            <li><strong>发现问题后</strong>：下载 Markdown，把日志发给 Claude/GPT，让它分析"为什么这次输出不好"</li>
+            <li><strong>团队协作</strong>：把日志保存到云端或下载 CSV，队友能看到你的完整输入/输出/配置</li>
+          </ul>
+        </div>
+
         {/* Tip */}
         <p className="text-text-placeholder text-[11px]">
           💡 修改任何 Prompt 后，下一次点击「生成」或「发送」立即生效，无需刷新页面。

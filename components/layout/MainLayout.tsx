@@ -23,9 +23,6 @@ export default function MainLayout({ state, setState, children }: MainLayoutProp
           <span className="text-xs text-text-placeholder">AI Profile POC</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-text-secondary hidden sm:inline">
-            模型: {state.config.model.slice(0, 20)}…
-          </span>
           <button
             onClick={() => setShowHelp(!showHelp)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-200 ${
@@ -36,6 +33,17 @@ export default function MainLayout({ state, setState, children }: MainLayoutProp
           >
             <span>💡</span>
             <span>{showHelp ? '关闭说明' : '系统说明'}</span>
+          </button>
+          <button
+            onClick={() => setShowHelp(!showHelp)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium transition-all duration-200 ${
+              showHelp
+                ? 'bg-accent text-white shadow-sm'
+                : 'bg-elevated text-text-secondary hover:text-text-primary hover:bg-surface border border-border-light'
+            }`}
+          >
+            <span>🐛</span>
+            <span>{showHelp ? '关闭说明' : '调试说明'}</span>
           </button>
         </div>
       </header>

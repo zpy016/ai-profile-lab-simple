@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AppState, TextBlock, Tag } from '@/lib/types';
+import { createTestLog } from '@/lib/test-log-helper';
 import Button from '@/components/shared/Button';
 import TagCloud from '@/components/shared/TagCloud';
 import ContentBlockCard from '@/components/shared/ContentBlockCard';
@@ -32,14 +33,17 @@ export default function QuickInput({ state, setState }: QuickInputProps) {
     if (!state.quickInput.trim()) return;
     setLoading(true);
     setError('');
+    const startTime = Date.now();
+    const systemPrompt = state.config.promptExtractTags;
+    const userPrompt = state.quickInput;
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemPrompt: state.config.promptExtractTags,
-          userPrompt: state.quickInput,
+          systemPrompt,
+          userPrompt,
           model: state.config.model,
           temperature: state.config.temperature,
         }),
@@ -73,8 +77,34 @@ export default function QuickInput({ state, setState }: QuickInputProps) {
         quickTags: tags,
         quickIntro: parsed.intro || '',
       }));
+
+      createTestLog(setState, {
+        workflow: 'quick',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: true,
+        rawOutput: data.content || '',
+        parsedOutput: { blocks: parsed.blocks, tags: parsed.tags, intro: parsed.intro },
+        usage: data.usage,
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } catch (err: any) {
       setError(err.message || 'AI 解析失败，请重试');
+      createTestLog(setState, {
+        workflow: 'quick',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: false,
+        rawOutput: '',
+        errorMessage: err.message || 'AI 解析失败',
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } finally {
       setLoading(false);
     }

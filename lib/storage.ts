@@ -21,6 +21,7 @@ export function getInitialState(): AppState {
       tags: [],
       blocks: [],
     },
+    testLogs: [],
   };
 }
 
@@ -40,7 +41,16 @@ export function loadState(): AppState {
         }
       });
     }
-    return { ...getInitialState(), ...parsed, config: mergedConfig };
+    const state = { ...getInitialState(), ...parsed, config: mergedConfig };
+    // 兼容旧数据：testLogs 可能不存在
+    if (!Array.isArray(state.testLogs)) {
+      state.testLogs = [];
+    }
+    // 限制日志数量，防止 localStorage 溢出
+    if (state.testLogs.length > 100) {
+      state.testLogs = state.testLogs.slice(0, 100);
+    }
+    return state;
   } catch {
     return getInitialState();
   }

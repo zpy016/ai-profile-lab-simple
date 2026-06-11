@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AppState, TextBlock, Tag, Message } from '@/lib/types';
+import { createTestLog } from '@/lib/test-log-helper';
 import Button from '@/components/shared/Button';
 import TagCloud from '@/components/shared/TagCloud';
 import ContentBlockCard from '@/components/shared/ContentBlockCard';
@@ -36,13 +37,17 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
 
   const startInterview = async () => {
     setLoading(true);
+    const startTime = Date.now();
+    const systemPrompt = state.config.promptInterviewGuide + '\n\n这是采访的第 1 轮，请开始第一个问题。';
+    const userPrompt = '开始采访';
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemPrompt: state.config.promptInterviewGuide + '\n\n这是采访的第 1 轮，请开始第一个问题。',
-          userPrompt: '开始采访',
+          systemPrompt,
+          userPrompt,
           model: state.config.model,
           temperature: state.config.temperature,
         }),
@@ -58,12 +63,38 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
         interviewMessages: [aiMsg],
         interviewRound: 1,
       }));
-    } catch {
+
+      createTestLog(setState, {
+        workflow: 'interview-start',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: true,
+        rawOutput: data.content || '',
+        parsedOutput: { nextQuestion: parsed.nextQuestion },
+        usage: data.usage,
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
+    } catch (err: any) {
       setState((prev) => ({
         ...prev,
         interviewMessages: [{ role: 'assistant', content: '你好！请先简单介绍一下自己吧。' }],
         interviewRound: 1,
       }));
+      createTestLog(setState, {
+        workflow: 'interview-start',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: false,
+        rawOutput: '',
+        errorMessage: err.message || '采访初始化失败',
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } finally {
       setLoading(false);
     }
@@ -79,11 +110,11 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
     setInput('');
     setLoading(true);
     setError('');
+    const startTime = Date.now();
+    const historyText = newMessages.map((m) => `${m.role === 'user' ? '用户' : 'AI'}: ${m.content}`).join('\n');
+    const systemPrompt = `${state.config.promptInterviewGuide}\n\n当前是第 ${state.interviewRound + 1} 轮（最多 ${MAX_ROUNDS} 轮）。\n\n历史对话：\n${historyText}`;
 
     try {
-      const historyText = newMessages.map((m) => `${m.role === 'user' ? '用户' : 'AI'}: ${m.content}`).join('\n');
-      const systemPrompt = `${state.config.promptInterviewGuide}\n\n当前是第 ${state.interviewRound + 1} 轮（最多 ${MAX_ROUNDS} 轮）。\n\n历史对话：\n${historyText}`;
-
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -131,8 +162,39 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
         interviewIntro: parsed.introSnippet || prev.interviewIntro,
         interviewEnded: shouldEnd,
       }));
+
+      createTestLog(setState, {
+        workflow: 'interview-send',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt: userMsg.content,
+        systemPrompt,
+        success: true,
+        rawOutput: data.content || '',
+        parsedOutput: {
+          nextQuestion: parsed.nextQuestion,
+          hiddenBlocks: parsed.hiddenBlocks,
+          extractedTags: parsed.extractedTags,
+          introSnippet: parsed.introSnippet,
+        },
+        usage: data.usage,
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } catch (err: any) {
       setError(err.message || 'AI 响应失败');
+      createTestLog(setState, {
+        workflow: 'interview-send',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt: userMsg.content,
+        systemPrompt,
+        success: false,
+        rawOutput: '',
+        errorMessage: err.message || 'AI 响应失败',
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } finally {
       setLoading(false);
     }
@@ -140,16 +202,19 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
 
   const handleEndInterview = async () => {
     setLoading(true);
-    try {
-      const historyText = state.interviewMessages.map((m) => `${m.role === 'user' ? '用户' : 'AI'}: ${m.content}`).join('\n');
-      const hiddenContext = state.interviewBlocks.filter(b => b.category === 'hidden').map(b => b.content).join('\n');
+    const startTime = Date.now();
+    const historyText = state.interviewMessages.map((m) => `${m.role === 'user' ? '用户' : 'AI'}: ${m.content}`).join('\n');
+    const hiddenContext = state.interviewBlocks.filter(b => b.category === 'hidden').map(b => b.content).join('\n');
+    const systemPrompt = state.config.promptExtractTags + '\n\n注意：请同时基于以下 hidden 信息提炼标签和内容块（但 hidden 内容本身不展示，仅参与提炼）。\nHidden 信息：\n' + hiddenContext;
+    const userPrompt = `请根据以下采访对话，生成完整的个人主页内容：\n${historyText}`;
 
+    try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemPrompt: state.config.promptExtractTags + '\n\n注意：请同时基于以下 hidden 信息提炼标签和内容块（但 hidden 内容本身不展示，仅参与提炼）。\nHidden 信息：\n' + hiddenContext,
-          userPrompt: `请根据以下采访对话，生成完整的个人主页内容：\n${historyText}`,
+          systemPrompt,
+          userPrompt,
           model: state.config.model,
           temperature: state.config.temperature,
         }),
@@ -179,8 +244,34 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
         interviewIntro: parsed.intro || prev.interviewIntro,
         interviewEnded: true,
       }));
+
+      createTestLog(setState, {
+        workflow: 'interview-end',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: true,
+        rawOutput: data.content || '',
+        parsedOutput: { blocks: parsed.blocks, tags: parsed.tags, intro: parsed.intro },
+        usage: data.usage,
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } catch (err: any) {
       setError(err.message || '生成失败');
+      createTestLog(setState, {
+        workflow: 'interview-end',
+        model: state.config.model,
+        temperature: state.config.temperature,
+        userPrompt,
+        systemPrompt,
+        success: false,
+        rawOutput: '',
+        errorMessage: err.message || '生成失败',
+        latencyMs: Date.now() - startTime,
+        configSnapshot: state.config,
+      });
     } finally {
       setLoading(false);
     }

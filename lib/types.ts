@@ -27,6 +27,27 @@ export interface Message {
   content: string;
 }
 
+export interface TestLog {
+  id: string;
+  timestamp: string;
+  workflow: 'quick' | 'interview-start' | 'interview-send' | 'interview-end';
+  model: string;
+  temperature: number;
+  userPrompt: string;
+  systemPrompt: string;
+  success: boolean;
+  rawOutput: string;
+  parsedOutput?: object;
+  errorMessage?: string;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  latencyMs: number;
+  configSnapshot: AppConfig;
+}
+
 export interface AppState {
   activeTab: 'quick' | 'interview' | 'profile';
   config: AppConfig;
@@ -48,6 +69,8 @@ export interface AppState {
     tags: Tag[];
     blocks: TextBlock[];
   };
+
+  testLogs: TestLog[];
 }
 
 export interface PromptDocument {

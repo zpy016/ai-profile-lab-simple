@@ -8,6 +8,7 @@ import TemperatureSlider from './TemperatureSlider';
 import Button from '@/components/shared/Button';
 import PromptManager from './PromptManager';
 import TestLogManager from './TestLogManager';
+import DataManager from './DataManager';
 
 interface TuningPanelProps {
   state: AppState;
@@ -136,6 +137,9 @@ export default function TuningPanel({ state, setState }: TuningPanelProps) {
 
       {/* Test Log Manager */}
       <TestLogManager state={state} setState={setState} />
+
+      {/* Data Manager */}
+      <DataManager state={state} setState={setState} />
     </div>
   );
 }

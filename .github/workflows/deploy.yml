@@ -54,6 +54,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd /var/www/ai-profile
+            # 清理旧的构建产物，防止浏览器加载旧版本 JS chunk
+            rm -rf .next
             tar -xzf deploy.tar.gz
             rm deploy.tar.gz
             # 写入环境变量（从 GitHub Secrets 注入）
@@ -69,5 +71,10 @@ jobs:
             pm2 save
             # 确保 Nginx 指向正确的端口（自动修复旧配置）
             sed -i 's/localhost:3000/localhost:3035/g' /etc/nginx/sites-available/ai-profile
+            # 修改 Nginx 禁用长期缓存，防止浏览器加载旧版本
+            sed -i 's/expires 1M;/expires -1; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";/g' /etc/nginx/sites-available/ai-profile
+            if ! grep -q 'add_header Cache-Control "no-store' /etc/nginx/sites-available/ai-profile; then
+              sed -i '/proxy_cache_bypass \$http_upgrade;/a\        add_header Cache-Control "no-store, no-cache, must-revalidate";' /etc/nginx/sites-available/ai-profile
+            fi
             # 重启 Nginx
             nginx -t && systemctl restart nginx

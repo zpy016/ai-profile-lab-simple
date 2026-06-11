@@ -17,11 +17,14 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const MAX_ROUNDS = 6;
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current && messagesEndRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [state.interviewMessages, loading]);
 
   // Initialize interview if empty (prevent double init in StrictMode)
@@ -314,7 +317,7 @@ export default function InterviewChat({ state, setState }: InterviewChatProps) {
       </div>
 
       {/* Chat */}
-      <div className="bg-surface border border-border rounded-card p-4 space-y-3 min-h-[300px] max-h-[500px] overflow-y-auto">
+      <div ref={chatContainerRef} className="bg-surface border border-border rounded-card p-4 space-y-3 min-h-[300px] max-h-[500px] overflow-y-auto">
         {state.interviewMessages.map((msg, idx) => (
           <div
             key={idx}

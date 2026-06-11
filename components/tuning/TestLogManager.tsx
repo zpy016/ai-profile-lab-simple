@@ -248,12 +248,29 @@ ${log.errorMessage ? `**错误:** ${log.errorMessage}` : ''}
               {loading && <p className="text-xs text-text-secondary text-center py-4">加载中…</p>}
               {!loading && cloudList.length === 0 && <p className="text-xs text-text-secondary text-center py-4">还没有云端日志记录</p>}
               {cloudList.map((item) => (
-                <div key={item.id} className="border border-border-light rounded-btn p-3 cursor-pointer hover:bg-elevated transition-colors" onClick={() => handleLoadCloud(item.id)}>
+                <div key={item.id} className="border border-border-light rounded-btn p-3 hover:bg-elevated transition-colors relative group">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-text-primary">{item.name}</span>
-                    <span className="text-[10px] text-text-secondary">{new Date(item.updatedAt).toLocaleDateString()}</span>
+                    <span className="text-sm font-medium text-text-primary cursor-pointer" onClick={() => handleLoadCloud(item.id)}>{item.name}</span>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!window.confirm(`确定删除「${item.name}」吗？`)) return;
+                        try {
+                          const res = await fetch(`/api/logs/delete?id=${item.id}`, { method: 'POST' });
+                          const data = await res.json();
+                          if (data.success) {
+                            setCloudList((prev) => prev.filter((p) => p.id !== item.id));
+                          }
+                        } catch {}
+                      }}
+                      className="text-[10px] text-error opacity-0 group-hover:opacity-100 hover:underline transition-opacity px-1"
+                    >
+                      删除
+                    </button>
                   </div>
-                  <div className="text-[11px] text-text-secondary mt-0.5">{item.author} {item.description ? `· ${item.description}` : ''}</div>
+                  <div className="text-[11px] text-text-secondary mt-0.5 cursor-pointer" onClick={() => handleLoadCloud(item.id)}>
+                    {item.author} {item.description ? `· ${item.description}` : ''}
+                  </div>
                 </div>
               ))}
             </div>
